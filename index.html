@@ -11,6 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700,500&display=swap" rel="stylesheet" />
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="preload" as="video" href="assets/fusion-bowl.mp4" type="video/mp4" />
 
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
@@ -261,6 +262,11 @@
             mask-image:linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.35) 9%, #000 22%, #000 78%, rgba(0,0,0,0.35) 91%, transparent 100%);
   }
   .scrub-mask video{ filter:saturate(1.06) contrast(1.03); }
+  .fusion video{
+    transform:translateZ(0);
+    will-change:transform;
+    backface-visibility:hidden;
+  }
 
   .fusion-copy{ min-height:350px; }
   .fusion-panel{
@@ -418,10 +424,6 @@
 
       <div class="relative z-10 mx-auto flex w-full max-w-[1180px] flex-col items-center text-center">
         <div class="flex flex-col items-center">
-          <div class="reveal inline-flex w-max items-center gap-2 rounded-full border border-ink/[0.07] bg-mist/70 px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-slate shadow-float">
-            <span class="h-1.5 w-1.5 rounded-full bg-sage"></span> Now in beta
-          </div>
-
           <h1 class="reveal hero-copy hero-headline mt-7 max-w-[13ch] font-display text-[clamp(3rem,7.6vw,7.6rem)] font-semibold leading-[0.92] tracking-[-0.03em] text-ink">
             <span class="hero-question block">Your camera can't see depth.</span>
             <span class="hero-answer block">VoCal can.</span>
@@ -491,7 +493,7 @@
                   </span>
                   <div>
                     <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-sage">Voice context</p>
-                    <p class="mt-1 font-display text-[21px] font-medium leading-tight tracking-tight">“There’s beef under the rice, plus extra avocado.”</p>
+                    <p class="mt-1 font-display text-[21px] font-medium leading-tight tracking-tight">“There’s chicken under the rice, plus extra avocado.”</p>
                   </div>
                 </div>
               </div>
@@ -500,7 +502,7 @@
                 <div class="flex items-center justify-between">
                   <div>
                     <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-sagelt/80">Combined result</p>
-                    <h3 class="mt-1 font-display text-2xl font-semibold tracking-tight">Beef rice bowl</h3>
+                    <h3 class="mt-1 font-display text-2xl font-semibold tracking-tight">Chicken rice bowl</h3>
                   </div>
                   <span class="rounded-full bg-sage/25 px-3 py-1.5 text-[11px] font-semibold text-sagelt">+voice</span>
                 </div>
@@ -566,7 +568,7 @@
               <article class="fusion-panel fusion-voice absolute inset-0">
                 <p class="hero-copy inline-flex w-max items-center gap-2 rounded-full border border-ink/[0.07] bg-mist/75 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-slate shadow-float">Step 02 · voice context</p>
                 <h2 class="hero-copy mt-7 max-w-[12ch] font-display text-[clamp(2.45rem,5.6vw,5.2rem)] font-semibold leading-[0.98] tracking-[-0.03em] text-ink">Say what the lens missed.</h2>
-                <p class="hero-copy mt-6 max-w-[40ch] text-[clamp(1.08rem,1.55vw,1.32rem)] font-medium leading-relaxed text-ink/80">“There’s beef under the rice, extra avocado, and peanut sauce.” VoCal treats your words as evidence, not an afterthought.</p>
+                <p class="hero-copy mt-6 max-w-[40ch] text-[clamp(1.08rem,1.55vw,1.32rem)] font-medium leading-relaxed text-ink/80">“There’s chicken under the rice, extra avocado, and peanut sauce.” VoCal treats your words as evidence, not an afterthought.</p>
               </article>
 
               <article class="fusion-panel fusion-result absolute inset-0">
@@ -586,32 +588,31 @@
           <div class="relative">
             <div class="rounded-[2.6rem] border border-ink/[0.06] bg-white/45 p-2 shadow-floatl backdrop-blur-sm">
               <div class="relative min-h-[430px] overflow-hidden rounded-[calc(2.6rem-0.5rem)] bg-mist shadow-inset sm:min-h-[520px]">
-                <video id="scrubVid" class="absolute inset-0 h-full w-full object-cover opacity-80" muted playsinline preload="auto" aria-hidden="true">
-                  <source src="explode.mp4" type="video/mp4" />
+                <video id="scrubVid" class="absolute inset-0 h-full w-full object-cover opacity-100" muted playsinline preload="auto" aria-hidden="true">
+                  <source src="assets/fusion-bowl.mp4" type="video/mp4" />
                 </video>
-                <div class="absolute inset-0 bg-[radial-gradient(ellipse_76%_66%_at_52%_46%,rgba(251,251,250,0.16),rgba(251,251,250,0.5)_62%,rgba(251,251,250,0.88)_100%)]"></div>
 
-                <div class="absolute left-[9%] top-[16%] rounded-full bg-ink px-3 py-1.5 text-[11px] font-semibold text-mist shadow-float">Camera frame</div>
-                <div class="fusion-chip photo-chip absolute left-[14%] top-[36%] rounded-full bg-mist/90 px-4 py-2 text-[13px] font-semibold text-ink shadow-float">Rice</div>
-                <div class="fusion-chip photo-chip absolute right-[17%] top-[31%] rounded-full bg-mist/90 px-4 py-2 text-[13px] font-semibold text-ink shadow-float">Greens</div>
-                <div class="fusion-chip photo-chip absolute right-[12%] top-[52%] rounded-full bg-mist/90 px-4 py-2 text-[13px] font-semibold text-ink shadow-float">Sauce?</div>
+                <div class="fusion-chip photo-chip absolute left-[10%] top-[39%] rounded-full bg-mist/90 px-4 py-2 text-[13px] font-semibold text-ink shadow-float">Carrot</div>
+                <div class="fusion-chip photo-chip absolute left-[13%] top-[22%] rounded-full bg-mist/90 px-4 py-2 text-[13px] font-semibold text-ink shadow-float">Cucumber</div>
+                <div class="fusion-chip photo-chip absolute left-[38%] top-[15%] rounded-full bg-mist/90 px-4 py-2 text-[13px] font-semibold text-ink shadow-float">Broccoli</div>
+                <div class="fusion-chip photo-chip absolute left-[43%] top-[30%] rounded-full bg-mist/90 px-4 py-2 text-[13px] font-semibold text-ink shadow-float">Greens</div>
+                <div class="fusion-chip photo-chip absolute right-[20%] top-[38%] rounded-full bg-mist/90 px-4 py-2 text-[13px] font-semibold text-ink shadow-float">Chicken</div>
 
-                <div class="fusion-chip voice-chip absolute left-[11%] bottom-[31%] rounded-full bg-sagelt px-4 py-2 text-[13px] font-semibold text-sage shadow-float">Beef underneath</div>
-                <div class="fusion-chip voice-chip absolute right-[10%] bottom-[24%] rounded-full bg-sagelt px-4 py-2 text-[13px] font-semibold text-sage shadow-float">+ avocado</div>
-
-                <div class="fusion-result-card absolute inset-x-5 bottom-5 rounded-[2rem] bg-ink p-5 text-mist shadow-floatl">
-                  <div class="flex items-center justify-between gap-4">
-                    <div>
-                      <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-sagelt/80">VoCal result</p>
-                      <h3 class="mt-1 font-display text-2xl font-semibold tracking-tight">Beef rice bowl</h3>
-                    </div>
-                    <span class="result-chip fusion-chip rounded-full bg-mist/10 px-3 py-1.5 text-[11px] font-semibold">91% confidence</span>
+                <div class="fusion-chip voice-chip absolute left-[17%] bottom-[18%] rounded-full bg-sagelt px-4 py-2 text-[13px] font-semibold text-sage shadow-float">+Rice Underneath</div>
+                <div class="fusion-chip voice-chip absolute right-[16%] bottom-[22%] rounded-full bg-sagelt px-4 py-2 text-[13px] font-semibold text-sage shadow-float">+Lentils Underneath</div>
+              </div>
+              <div class="fusion-result-card mt-3 rounded-[2rem] bg-ink p-5 text-mist shadow-floatl">
+                <div class="flex items-center justify-between gap-4">
+                  <div>
+                    <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-sagelt/80">VoCal result</p>
+                    <h3 class="mt-1 font-display text-2xl font-semibold tracking-tight">Chicken rice bowl</h3>
                   </div>
-                  <div class="mt-4 grid grid-cols-3 gap-2">
-                    <div class="rounded-2xl bg-mist/10 px-3 py-3"><p class="font-display text-xl font-semibold">742</p><p class="text-[10px] uppercase tracking-[0.16em] text-mist/45">kcal</p></div>
-                    <div class="rounded-2xl bg-mist/10 px-3 py-3"><p class="font-display text-xl font-semibold">38g</p><p class="text-[10px] uppercase tracking-[0.16em] text-mist/45">protein</p></div>
-                    <div class="rounded-2xl bg-mist/10 px-3 py-3"><p class="font-display text-xl font-semibold">+22g</p><p class="text-[10px] uppercase tracking-[0.16em] text-mist/45">vs photo</p></div>
-                  </div>
+                  <span class="result-chip fusion-chip rounded-full bg-mist/10 px-3 py-1.5 text-[11px] font-semibold">91% confidence</span>
+                </div>
+                <div class="mt-4 grid grid-cols-3 gap-2">
+                  <div class="rounded-2xl bg-mist/10 px-3 py-3"><p class="font-display text-xl font-semibold">742</p><p class="text-[10px] uppercase tracking-[0.16em] text-mist/45">kcal</p></div>
+                  <div class="rounded-2xl bg-mist/10 px-3 py-3"><p class="font-display text-xl font-semibold">38g</p><p class="text-[10px] uppercase tracking-[0.16em] text-mist/45">protein</p></div>
+                  <div class="rounded-2xl bg-mist/10 px-3 py-3"><p class="font-display text-xl font-semibold">+22g</p><p class="text-[10px] uppercase tracking-[0.16em] text-mist/45">vs photo</p></div>
                 </div>
               </div>
             </div>
@@ -1173,6 +1174,7 @@
     const vid = document.getElementById('scrubVid');
     if (!section) return;
 
+    const FUSION_VIDEO_RATE = 3;
     let current = '';
 
     if (vid) {
@@ -1180,9 +1182,10 @@
       vid.muted = true;
       vid.playsInline = true;
       vid.preload = 'auto';
-      vid.defaultPlaybackRate = 0.85;
-      vid.playbackRate = 0.85;
+      vid.defaultPlaybackRate = FUSION_VIDEO_RATE;
+      vid.playbackRate = FUSION_VIDEO_RATE;
       try { vid.currentTime = 0; } catch (e) {}
+      vid.load();
     }
 
     function setStage(stage) {
@@ -1206,8 +1209,11 @@
       video.muted = true;
       video.loop = false;
       video.playsInline = true;
-      video.playbackRate = 0.85;
+      video.preload = 'auto';
+      video.defaultPlaybackRate = FUSION_VIDEO_RATE;
+      video.playbackRate = FUSION_VIDEO_RATE;
       try { video.currentTime = 0; } catch (e) {}
+      video.load();
       const io = new IntersectionObserver(([entry]) => {
         if (entry.isIntersecting && !video.ended) video.play().catch(() => {});
         else video.pause();
