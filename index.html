@@ -96,6 +96,7 @@
   /* Soft paper halo behind hero copy: a light glow that lifts type off busy
      footage. Not a harsh dark drop-shadow — stays Soft-Structuralism clean. */
   .hero-copy{ text-shadow:0 1px 2px rgba(244,244,242,0.96), 0 0 14px rgba(244,244,242,0.92), 0 2px 30px rgba(244,244,242,0.88); }
+  .feature-title{ letter-spacing:0; word-spacing:.07em; }
 
   /* Interactive phone demo */
   .phone-demo{
@@ -176,21 +177,69 @@
   }
   .scrub-mask video{ filter:saturate(1.06) contrast(1.03); }
 
-  .scrub-panel{ opacity:0; transform:translateY(40px); filter:blur(10px);
-    transition:opacity .8s cubic-bezier(0.22,1,0.36,1), transform .9s cubic-bezier(0.22,1,0.36,1), filter .9s cubic-bezier(0.22,1,0.36,1); }
-  .scrub-panel.active{ opacity:1; transform:none; filter:blur(0); }
-  .scrub-tick{ transition:color .5s cubic-bezier(0.22,1,0.36,1), transform .5s cubic-bezier(0.32,0.72,0,1); }
-  .scrub-tick .rail{ transition:transform .6s cubic-bezier(0.32,0.72,0,1); transform-origin:left; transform:scaleX(.18); }
-  .scrub-tick.on{ color:#0B0B0C; }
-  .scrub-tick.on .rail{ transform:scaleX(1); background:#16613F; }
+  .fusion-copy{ min-height:350px; }
+  .fusion-panel{
+    opacity:0;
+    transform:translateY(28px);
+    filter:blur(10px);
+    pointer-events:none;
+    transition:opacity .7s cubic-bezier(.22,1,.36,1), transform .8s cubic-bezier(.22,1,.36,1), filter .8s cubic-bezier(.22,1,.36,1);
+  }
+  .fusion[data-fusion-stage="photo"] .fusion-photo,
+  .fusion[data-fusion-stage="voice"] .fusion-voice,
+  .fusion[data-fusion-stage="result"] .fusion-result{
+    opacity:1;
+    transform:none;
+    filter:blur(0);
+    pointer-events:auto;
+  }
+  .fusion-chip{
+    opacity:.22;
+    transform:translateY(10px) scale(.96);
+    transition:opacity .65s cubic-bezier(.22,1,.36,1), transform .65s cubic-bezier(.32,.72,0,1), background .65s cubic-bezier(.22,1,.36,1), color .65s cubic-bezier(.22,1,.36,1);
+  }
+  .fusion[data-fusion-stage="photo"] .photo-chip,
+  .fusion[data-fusion-stage="voice"] .photo-chip,
+  .fusion[data-fusion-stage="result"] .photo-chip,
+  .fusion[data-fusion-stage="voice"] .voice-chip,
+  .fusion[data-fusion-stage="result"] .voice-chip,
+  .fusion[data-fusion-stage="result"] .result-chip{
+    opacity:1;
+    transform:none;
+  }
+  .fusion[data-fusion-stage="voice"] .voice-chip,
+  .fusion[data-fusion-stage="result"] .voice-chip{ background:#16613F; color:#FBFBFA; }
+  .fusion[data-fusion-stage="result"] .result-chip{ background:#0B0B0C; color:#FBFBFA; }
+  .fusion-result-card{
+    opacity:0;
+    transform:translateY(28px);
+    pointer-events:none;
+    transition:opacity .75s cubic-bezier(.22,1,.36,1), transform .75s cubic-bezier(.32,.72,0,1);
+  }
+  .fusion[data-fusion-stage="result"] .fusion-result-card{ opacity:1; transform:none; pointer-events:auto; }
+  .fusion-step{
+    opacity:.32;
+    transition:opacity .45s cubic-bezier(.22,1,.36,1), transform .45s cubic-bezier(.32,.72,0,1);
+  }
+  .fusion[data-fusion-stage="photo"] .fusion-step-photo,
+  .fusion[data-fusion-stage="voice"] .fusion-step-voice,
+  .fusion[data-fusion-stage="result"] .fusion-step-result{
+    opacity:1;
+    transform:translateY(-1px);
+  }
+  @media (min-width: 1024px){
+    .fusion-copy{ min-height:470px; }
+  }
 
   @media (prefers-reduced-motion: reduce){
     .scrub{ height:auto !important; }
     .scrub-stage{ position:static !important; min-height:auto !important; height:auto !important; display:block !important; }
     .scrub-video-wrap{ position:relative !important; inset:auto !important; height:auto !important; }
     .scrub-video-wrap video{ height:70vh !important; }
-    .scrub-panel{ position:static !important; opacity:1 !important; transform:none !important; filter:none !important; margin-bottom:3rem; }
-    .scrub-ticks{ display:none !important; }
+    .fusion{ height:auto !important; }
+    .fusion-copy{ min-height:auto !important; }
+    .fusion-panel{ position:static !important; opacity:1 !important; transform:none !important; filter:none !important; margin-bottom:2rem; }
+    .fusion-chip,.fusion-result-card,.fusion-step{ opacity:1 !important; transform:none !important; }
   }
 
   /* Marquee — translateX only */
@@ -410,38 +459,91 @@
       </div>
     </section>
 
-    <!-- ================== SCROLL-SCRUB "EXPLODING VIEW" ================== -->
-    <section id="explode" class="scrub relative bg-paper">
-      <div class="scrub-stage sticky top-0 flex min-h-[100dvh] items-center overflow-hidden">
+    <!-- ================== PHOTO + VOICE RECONCILIATION ================== -->
+    <section id="explode" class="scrub fusion relative h-[320vh] bg-paper" data-fusion-stage="photo">
+      <div class="scrub-stage fusion-stage sticky top-0 flex min-h-[100dvh] items-center overflow-hidden pb-20 pt-32 lg:py-24">
 
-        <!-- Frame-by-frame video, seeked from scroll (never autoplays) -->
         <div class="scrub-video-wrap scrub-mask pointer-events-none absolute inset-0">
           <video id="scrubVid" class="h-full w-full object-cover" muted playsinline preload="auto" aria-hidden="true">
             <source src="explode.mp4" type="video/mp4" />
           </video>
-          <!-- Lighter, left-biased scrim: keeps copy legible but lets the
-               in-video Fat / Carb / Macro labels read through. -->
-          <div class="absolute inset-0 bg-[radial-gradient(ellipse_62%_58%_at_40%_50%,rgba(244,244,242,0.58),rgba(244,244,242,0.24)_46%,rgba(244,244,242,0)_74%)]"></div>
+          <div class="absolute inset-0 bg-[radial-gradient(ellipse_66%_58%_at_62%_52%,rgba(244,244,242,0.28),rgba(244,244,242,0.08)_46%,rgba(244,244,242,0)_78%)]"></div>
         </div>
 
-        <!-- Focused paper plate behind the copy only: a soft feathered oval (not
-             a box) that gives the text a solid reading surface while the explode
-             still shows around the edges, top and bottom. -->
-        <div aria-hidden="true" class="scrub-plate pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_56%_52%_at_50%_50%,rgba(244,244,242,0.94),rgba(244,244,242,0.74)_36%,rgba(244,244,242,0.32)_60%,rgba(244,244,242,0)_84%)]"></div>
+        <div aria-hidden="true" class="scrub-plate pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_56%_at_47%_50%,rgba(244,244,242,0.96),rgba(244,244,242,0.78)_38%,rgba(244,244,242,0.34)_64%,rgba(244,244,242,0)_88%)]"></div>
 
-        <div class="relative z-10 mx-auto flex w-full max-w-[1180px] flex-col items-center px-5 text-center sm:px-8">
-          <article class="scrub-panel active flex flex-col items-center">
-            <p class="hero-copy inline-flex w-max items-center gap-2 rounded-full border border-ink/[0.07] bg-mist/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-slate shadow-float">It sees the whole plate</p>
-            <h2 class="hero-copy mt-7 max-w-[18ch] font-display text-[clamp(2.6rem,6.5vw,5.5rem)] font-semibold leading-[0.98] tracking-[-0.03em] text-ink">Every meal, exploded into its parts.</h2>
-            <p class="hero-copy mt-6 max-w-[46ch] text-[clamp(1.15rem,1.8vw,1.45rem)] font-medium leading-relaxed text-ink/80">One dish becomes its ingredients — each weighed, tagged and tracked — so you see exactly what you ate, component by component.</p>
-          </article>
+        <div class="relative z-10 mx-auto grid w-full max-w-[1180px] items-center gap-10 px-5 sm:px-8 lg:grid-cols-[minmax(0,0.92fr)_minmax(360px,1fr)]">
+          <div>
+            <div class="fusion-copy relative">
+              <article class="fusion-panel fusion-photo absolute inset-0">
+                <p class="hero-copy inline-flex w-max items-center gap-2 rounded-full border border-ink/[0.07] bg-mist/75 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-slate shadow-float">Step 01 · photo scan</p>
+                <h2 class="hero-copy mt-7 max-w-[11ch] font-display text-[clamp(2.45rem,5.6vw,5.2rem)] font-semibold leading-[0.98] tracking-[-0.03em] text-ink">A photo only sees the surface.</h2>
+                <p class="hero-copy mt-6 max-w-[38ch] text-[clamp(1.08rem,1.55vw,1.32rem)] font-medium leading-relaxed text-ink/80">Camera vision starts the log fast, but it cannot know what is buried, mixed in, off-frame, or customized.</p>
+              </article>
+
+              <article class="fusion-panel fusion-voice absolute inset-0">
+                <p class="hero-copy inline-flex w-max items-center gap-2 rounded-full border border-ink/[0.07] bg-mist/75 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-slate shadow-float">Step 02 · voice context</p>
+                <h2 class="hero-copy mt-7 max-w-[12ch] font-display text-[clamp(2.45rem,5.6vw,5.2rem)] font-semibold leading-[0.98] tracking-[-0.03em] text-ink">Say what the lens missed.</h2>
+                <p class="hero-copy mt-6 max-w-[40ch] text-[clamp(1.08rem,1.55vw,1.32rem)] font-medium leading-relaxed text-ink/80">“There’s beef under the rice, extra avocado, and peanut sauce.” VoCal treats your words as evidence, not an afterthought.</p>
+              </article>
+
+              <article class="fusion-panel fusion-result absolute inset-0">
+                <p class="hero-copy inline-flex w-max items-center gap-2 rounded-full border border-ink/[0.07] bg-mist/75 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-slate shadow-float">Step 03 · reconciled result</p>
+                <h2 class="hero-copy mt-7 max-w-[12ch] font-display text-[clamp(2.45rem,5.6vw,5.2rem)] font-semibold leading-[0.98] tracking-[-0.03em] text-ink">Photo and voice become one meal.</h2>
+                <p class="hero-copy mt-6 max-w-[40ch] text-[clamp(1.08rem,1.55vw,1.32rem)] font-medium leading-relaxed text-ink/80">The final log has ingredients, portions, macros, confidence, and progress impact, with a clear path to correct anything by voice.</p>
+              </article>
+            </div>
+
+            <div class="mt-8 grid max-w-[520px] grid-cols-3 gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate">
+              <div class="fusion-step fusion-step-photo rounded-full border border-ink/[0.07] bg-mist/70 px-3 py-2 text-center shadow-float">Photo</div>
+              <div class="fusion-step fusion-step-voice rounded-full border border-ink/[0.07] bg-mist/70 px-3 py-2 text-center shadow-float">Voice</div>
+              <div class="fusion-step fusion-step-result rounded-full border border-ink/[0.07] bg-mist/70 px-3 py-2 text-center shadow-float">Result</div>
+            </div>
+          </div>
+
+          <div class="relative">
+            <div class="rounded-[2.6rem] border border-ink/[0.06] bg-white/45 p-2 shadow-floatl backdrop-blur-sm">
+              <div class="relative min-h-[430px] overflow-hidden rounded-[calc(2.6rem-0.5rem)] bg-mist shadow-inset sm:min-h-[520px]">
+                <video class="absolute inset-0 h-full w-full object-cover opacity-80" muted playsinline preload="auto" aria-hidden="true">
+                  <source src="explode.mp4" type="video/mp4" />
+                </video>
+                <div class="absolute inset-0 bg-[radial-gradient(ellipse_76%_66%_at_52%_46%,rgba(251,251,250,0.16),rgba(251,251,250,0.5)_62%,rgba(251,251,250,0.88)_100%)]"></div>
+
+                <div class="absolute left-[9%] top-[16%] rounded-full bg-ink px-3 py-1.5 text-[11px] font-semibold text-mist shadow-float">Camera frame</div>
+                <div class="fusion-chip photo-chip absolute left-[14%] top-[36%] rounded-full bg-mist/90 px-4 py-2 text-[13px] font-semibold text-ink shadow-float">Rice</div>
+                <div class="fusion-chip photo-chip absolute right-[17%] top-[31%] rounded-full bg-mist/90 px-4 py-2 text-[13px] font-semibold text-ink shadow-float">Greens</div>
+                <div class="fusion-chip photo-chip absolute right-[12%] top-[52%] rounded-full bg-mist/90 px-4 py-2 text-[13px] font-semibold text-ink shadow-float">Sauce?</div>
+
+                <div class="fusion-chip voice-chip absolute left-[11%] bottom-[31%] rounded-full bg-sagelt px-4 py-2 text-[13px] font-semibold text-sage shadow-float">Beef underneath</div>
+                <div class="fusion-chip voice-chip absolute right-[10%] bottom-[24%] rounded-full bg-sagelt px-4 py-2 text-[13px] font-semibold text-sage shadow-float">+ avocado</div>
+
+                <div class="fusion-result-card absolute inset-x-5 bottom-5 rounded-[2rem] bg-ink p-5 text-mist shadow-floatl">
+                  <div class="flex items-center justify-between gap-4">
+                    <div>
+                      <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-sagelt/80">VoCal result</p>
+                      <h3 class="mt-1 font-display text-2xl font-semibold tracking-tight">Beef rice bowl</h3>
+                    </div>
+                    <span class="result-chip fusion-chip rounded-full bg-mist/10 px-3 py-1.5 text-[11px] font-semibold">91% confidence</span>
+                  </div>
+                  <div class="mt-4 grid grid-cols-3 gap-2">
+                    <div class="rounded-2xl bg-mist/10 px-3 py-3"><p class="font-display text-xl font-semibold">742</p><p class="text-[10px] uppercase tracking-[0.16em] text-mist/45">kcal</p></div>
+                    <div class="rounded-2xl bg-mist/10 px-3 py-3"><p class="font-display text-xl font-semibold">38g</p><p class="text-[10px] uppercase tracking-[0.16em] text-mist/45">protein</p></div>
+                    <div class="rounded-2xl bg-mist/10 px-3 py-3"><p class="font-display text-xl font-semibold">+22g</p><p class="text-[10px] uppercase tracking-[0.16em] text-mist/45">vs photo</p></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4 rounded-[1.75rem] border border-ink/[0.06] bg-mist/70 p-4 text-[14px] font-medium leading-relaxed text-slate shadow-float backdrop-blur-xl">
+              Photo-only logs miss hidden layers. Voice context turns the same image into a meal you can actually trust.
+            </div>
+          </div>
         </div>
 
-        <!-- Scroll hint -->
-        <div class="pointer-events-none absolute inset-x-0 bottom-7 z-10 flex justify-center">
+        <div class="pointer-events-none absolute inset-x-0 bottom-7 z-10 hidden justify-center sm:flex">
           <span class="flex items-center gap-2 rounded-full border border-ink/[0.07] bg-mist/70 px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-slate shadow-float">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M7 14l5 5 5-5"/></svg>
-            Scroll to explode
+            Scroll to combine
           </span>
         </div>
       </div>
@@ -462,7 +564,7 @@
     <section id="features" class="mx-auto max-w-[1180px] px-5 py-24 sm:px-8 sm:py-36">
       <div class="reveal max-w-[42ch]">
         <p class="inline-flex w-max items-center gap-2 rounded-full border border-ink/[0.07] bg-mist/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-slate">Why VoCal</p>
-        <h2 class="mt-6 font-display text-[clamp(2.2rem,5vw,3.8rem)] font-semibold leading-[1.02] tracking-[-0.03em]">More complete than a photo. Faster than typing.</h2>
+        <h2 class="feature-title mt-6 font-display text-[clamp(2.2rem,5vw,3.8rem)] font-semibold leading-[1.02] tracking-normal">Every feature earns its place in the log.</h2>
       </div>
 
       <div class="mt-14 grid grid-cols-1 gap-5 md:grid-cols-12">
@@ -475,16 +577,37 @@
                 <span class="grid h-12 w-12 place-items-center rounded-2xl bg-sagelt text-sage">
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/></svg>
                 </span>
-                <h3 class="mt-8 font-display text-3xl font-semibold tracking-tight sm:text-4xl">Describe what the camera cannot see.</h3>
-                <p class="mt-4 max-w-[40ch] leading-relaxed text-slate">A plate photo is only a surface view. Say what is hidden, mixed in, or missing from frame, and VoCal uses that context to refine the estimate.</p>
+                <h3 class="feature-title mt-8 font-display text-3xl font-semibold tracking-normal sm:text-4xl">Any food, any description.</h3>
+                <p class="mt-4 max-w-[40ch] leading-relaxed text-slate">Talk like a normal person. VoCal turns messy voice notes into structured food, portions, modifiers, and confidence signals.</p>
               </div>
-              <div class="mt-10 rounded-2xl bg-paper p-5">
-                <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate/70">Added by voice</p>
-                <p class="mt-2 font-display text-lg font-medium leading-snug">“There is chicken underneath the rice, and the sauce is peanut.”</p>
-                <div class="mt-4 flex flex-wrap gap-2 text-[12px] font-medium text-slate">
-                  <span class="rounded-full bg-mist px-3 py-1">Photo: rice</span>
-                  <span class="rounded-full bg-mist px-3 py-1">Voice: chicken</span>
-                  <span class="rounded-full bg-sagelt px-3 py-1 text-sage">higher confidence</span>
+              <div class="my-8 hidden grow items-center sm:flex" aria-hidden="true">
+                <div class="w-full">
+                  <div class="flex items-center gap-2 rounded-full bg-paper/70 px-5 py-4">
+                    <span class="h-3 w-1 rounded-full bg-sage/30"></span>
+                    <span class="h-8 w-1 rounded-full bg-sage/70"></span>
+                    <span class="h-5 w-1 rounded-full bg-sage/45"></span>
+                    <span class="h-11 w-1 rounded-full bg-sage"></span>
+                    <span class="h-6 w-1 rounded-full bg-sage/50"></span>
+                    <span class="h-9 w-1 rounded-full bg-sage/80"></span>
+                    <span class="h-4 w-1 rounded-full bg-sage/35"></span>
+                    <span class="ml-3 text-[12px] font-semibold uppercase tracking-[0.18em] text-slate/65">voice context parsed</span>
+                  </div>
+                  <div class="mt-4 flex flex-wrap gap-2 text-[12px] font-semibold text-slate">
+                    <span class="rounded-full bg-paper px-3 py-1.5">hidden protein</span>
+                    <span class="rounded-full bg-paper px-3 py-1.5">portion clue</span>
+                    <span class="rounded-full bg-sagelt px-3 py-1.5 text-sage">higher confidence</span>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-10 overflow-hidden rounded-2xl bg-paper">
+                <div class="border-b border-ink/[0.06] p-5">
+                  <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate/70">Voice note</p>
+                  <p class="mt-2 font-display text-lg font-medium leading-snug">"Half a Cava bowl, extra chicken, dressing on the side."</p>
+                </div>
+                <div class="grid gap-2 p-4 text-[13px] font-medium text-slate">
+                  <div class="flex items-center justify-between rounded-xl bg-mist px-4 py-3"><span>Base</span><span class="text-ink">Rice bowl, 1/2</span></div>
+                  <div class="flex items-center justify-between rounded-xl bg-mist px-4 py-3"><span>Protein</span><span class="text-ink">Chicken +60g</span></div>
+                  <div class="flex items-center justify-between rounded-xl bg-mist px-4 py-3"><span>Modifier</span><span class="text-ink">Dressing separate</span></div>
                 </div>
               </div>
             </div>
@@ -498,8 +621,25 @@
               <span class="grid h-12 w-12 place-items-center rounded-2xl bg-paper text-ink">
                 <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
               </span>
-              <h3 class="mt-7 font-display text-2xl font-semibold tracking-tight">Macros from photo evidence and voice context</h3>
-              <p class="mt-3 leading-relaxed text-slate">Calories, protein, carbs, fat and micros resolve against a food graph that can account for hidden ingredients, brands, and rough portions.</p>
+              <h3 class="feature-title mt-7 font-display text-2xl font-semibold tracking-normal">Restaurant lookup, matched automatically.</h3>
+              <p class="mt-3 leading-relaxed text-slate">Name the place or dish and VoCal can search restaurant foods, compare likely menu items, and anchor the estimate to a real meal.</p>
+              <div class="mt-6 overflow-hidden rounded-2xl bg-paper text-[13px] font-medium text-slate">
+                <div class="flex items-center gap-2 border-b border-ink/[0.06] px-4 py-3">
+                  <svg class="shrink-0 text-sage" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4"/></svg>
+                  <span class="truncate">chipotle chicken bowl, no cheese</span>
+                </div>
+                <div class="p-4">
+                  <div class="rounded-xl bg-mist p-4">
+                    <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate/65">Best match</p>
+                    <p class="mt-1 font-display text-lg font-semibold text-ink">Chicken burrito bowl</p>
+                    <div class="mt-3 grid grid-cols-3 gap-2 text-center text-[11px]">
+                      <span class="whitespace-nowrap rounded-full bg-paper px-2 py-1">640 kcal</span>
+                      <span class="whitespace-nowrap rounded-full bg-paper px-2 py-1">44g pro</span>
+                      <span class="whitespace-nowrap rounded-full bg-sagelt px-2 py-1 text-sage">menu fit</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </article>
@@ -511,8 +651,16 @@
               <span class="grid h-12 w-12 place-items-center rounded-2xl bg-mist/10 text-mist">
                 <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a4 4 0 0 1 4 4 4 4 0 0 1 0 8 4 4 0 0 1-8 0 4 4 0 0 1 0-8 4 4 0 0 1 4-4Z"/><path d="M12 7v10"/></svg>
               </span>
-              <h3 class="mt-7 font-display text-2xl font-semibold tracking-tight">A coach that nudges, gently</h3>
-              <p class="mt-3 leading-relaxed text-mist/60">VoCal notices patterns — low protein before noon, salty Fridays, under-fueled training days — and offers one quiet, specific next step.</p>
+              <h3 class="feature-title mt-7 font-display text-2xl font-semibold tracking-normal">Nutrition coach with tracker context.</h3>
+              <p class="mt-3 leading-relaxed text-mist/60">Meals, recovery, sleep, and training context become one next step instead of another dashboard to interpret.</p>
+              <div class="mt-6 rounded-2xl bg-mist/10 p-4">
+                <div class="grid grid-cols-3 gap-2 text-center text-[12px] font-semibold">
+                  <span class="rounded-full bg-mist/10 px-2 py-2 text-mist">42% recovery</span>
+                  <span class="rounded-full bg-mist/10 px-2 py-2 text-mist">6h 12m sleep</span>
+                  <span class="rounded-full bg-sage/25 px-2 py-2 text-sagelt">Lift day</span>
+                </div>
+                <p class="mt-4 rounded-xl bg-mist px-4 py-3 text-[14px] font-medium leading-relaxed text-ink">Add 25-35g protein at breakfast and hydrate before your afternoon session.</p>
+              </div>
             </div>
           </div>
         </article>
@@ -522,10 +670,24 @@
           <div class="h-full rounded-[2rem] border border-ink/[0.05] bg-white/55 p-2 shadow-float">
             <div class="h-full rounded-[calc(2rem-0.5rem)] bg-mist p-8 shadow-inset">
               <span class="grid h-12 w-12 place-items-center rounded-2xl bg-sagelt text-sage">
-                <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+                <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5"/><path d="M4 19h16"/><path d="m7 14 3-4 3 3 5-7"/></svg>
               </span>
-              <h3 class="mt-7 font-display text-xl font-semibold tracking-tight">Private by design</h3>
-              <p class="mt-3 text-[15px] leading-relaxed text-slate">Voice and meal context stay private by design. Your food data is for coaching, progress, and health integrations — never an ad graph.</p>
+              <h3 class="feature-title mt-7 font-display text-xl font-semibold tracking-normal">A progress tab that shows movement.</h3>
+              <p class="mt-3 text-[15px] leading-relaxed text-slate">Weight, protein consistency, calories, and check-ins sit together so the user sees trend, not just today's log.</p>
+              <div class="mt-6 rounded-2xl bg-paper p-4">
+                <div class="flex items-end justify-between gap-3">
+                  <div><p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate/65">Weight trend</p><p class="font-display text-2xl font-semibold">181.4 -> 178.9</p></div>
+                  <span class="rounded-full bg-sagelt px-3 py-1 text-[12px] font-semibold text-sage">-2.5 lb</span>
+                </div>
+                <div class="mt-4 flex h-16 items-end gap-2" aria-hidden="true">
+                  <span class="w-full rounded-t-lg bg-slate/20" style="height:58%"></span>
+                  <span class="w-full rounded-t-lg bg-slate/20" style="height:66%"></span>
+                  <span class="w-full rounded-t-lg bg-slate/20" style="height:48%"></span>
+                  <span class="w-full rounded-t-lg bg-sage/70" style="height:78%"></span>
+                  <span class="w-full rounded-t-lg bg-sage/80" style="height:84%"></span>
+                  <span class="w-full rounded-t-lg bg-sage" style="height:72%"></span>
+                </div>
+              </div>
             </div>
           </div>
         </article>
@@ -535,10 +697,22 @@
           <div class="h-full rounded-[2rem] border border-ink/[0.05] bg-white/55 p-2 shadow-float">
             <div class="h-full rounded-[calc(2rem-0.5rem)] bg-mist p-8 shadow-inset">
               <span class="grid h-12 w-12 place-items-center rounded-2xl bg-paper text-ink">
-                <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18Z"/></svg>
+                <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8"/><path d="M8 20h8"/><path d="M6 8V6a2 2 0 0 1 2-2"/><path d="M18 8V6a2 2 0 0 0-2-2"/><path d="M6 16v2a2 2 0 0 0 2 2"/><path d="M18 16v2a2 2 0 0 1-2 2"/><path d="M12 8v8"/><path d="M9.5 11h5"/></svg>
               </span>
-              <h3 class="mt-7 font-display text-xl font-semibold tracking-tight">Speaks 30 languages</h3>
-              <p class="mt-3 text-[15px] leading-relaxed text-slate">Code-switch mid-sentence. VoCal handles regional dishes, restaurant names, mixed languages, and rough descriptions fluently.</p>
+              <h3 class="feature-title mt-7 font-display text-xl font-semibold tracking-normal">Body composition, treated as a trend.</h3>
+              <p class="mt-3 text-[15px] leading-relaxed text-slate">Progress photos can estimate body-fat direction over time, while the interface keeps it framed as guidance, not a diagnosis.</p>
+              <div class="mt-6 grid grid-cols-[0.9fr_1fr] gap-3 rounded-2xl bg-paper p-4">
+                <div class="relative min-h-[126px] overflow-hidden rounded-xl bg-mist">
+                  <div class="absolute inset-x-6 bottom-0 top-6 rounded-t-full bg-slate/18"></div>
+                  <div class="absolute inset-x-10 bottom-0 top-12 rounded-t-full bg-slate/25"></div>
+                  <span class="absolute left-3 top-3 rounded-full bg-ink px-2 py-1 text-[10px] font-semibold text-mist">scan</span>
+                </div>
+                <div class="flex flex-col justify-between">
+                  <div><p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate/65">Estimate range</p><p class="mt-1 font-display text-2xl font-semibold">17-19%</p></div>
+                  <div class="h-2 overflow-hidden rounded-full bg-mist"><div class="h-full w-[68%] rounded-full bg-sage"></div></div>
+                  <p class="text-[12px] font-medium text-slate">trend confidence rising</p>
+                </div>
+              </div>
             </div>
           </div>
         </article>
@@ -550,8 +724,13 @@
               <span class="grid h-12 w-12 place-items-center rounded-2xl bg-sagelt text-sage">
                 <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="3" width="8" height="18" rx="2.5"/><path d="M11 6h2"/></svg>
               </span>
-              <h3 class="mt-7 font-display text-xl font-semibold tracking-tight">Lives on your wrist</h3>
-              <p class="mt-3 text-[15px] leading-relaxed text-slate">Raise, speak, done. Apple Watch logging, Whoop and fitness tracker context, plus Apple Health / Google Fit sync.</p>
+              <h3 class="feature-title mt-7 font-display text-xl font-semibold tracking-normal">Wearables feed the next step.</h3>
+              <p class="mt-3 text-[15px] leading-relaxed text-slate">Apple Watch, Whoop, Apple Health, and other fitness trackers help VoCal adjust coaching to recovery and output.</p>
+              <div class="mt-6 space-y-2 rounded-2xl bg-paper p-4 text-[13px] font-medium">
+                <div class="flex items-center justify-between rounded-xl bg-mist px-4 py-3"><span>Apple Watch</span><span class="text-sage">Log by voice</span></div>
+                <div class="flex items-center justify-between rounded-xl bg-mist px-4 py-3"><span>Whoop</span><span class="text-sage">Recovery synced</span></div>
+                <div class="flex items-center justify-between rounded-xl bg-mist px-4 py-3"><span>Health data</span><span class="text-sage">Steps + sleep</span></div>
+              </div>
             </div>
           </div>
         </article>
@@ -883,38 +1062,72 @@
     compute();
   })();
 
-  // ---- "Exploding view": auto-play once fully in frame, never reset ----
+  // ---- Photo + voice fusion story: scroll through three evidence states ----
   (function () {
     const section = document.getElementById('explode');
     const vid = document.getElementById('scrubVid');
-    if (!section || !vid) return;
+    if (!section) return;
 
-    const stage = section.querySelector('.scrub-stage') || section;
+    const stages = ['photo', 'voice', 'result'];
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let scheduled = false;
+    let current = '';
 
-    vid.loop = false;                          // play once, stop on last frame
-    vid.muted = true;
-    vid.playsInline = true;
-    vid.preload = 'auto';
-    vid.defaultPlaybackRate = 1.2;             // play 20% faster
-    vid.playbackRate = 1.2;
-    vid.addEventListener('play', () => { vid.playbackRate = 1.2; }); // re-assert
-    try { vid.currentTime = 0; } catch (e) {}
-    vid.pause();
+    if (vid) {
+      vid.loop = true;
+      vid.muted = true;
+      vid.playsInline = true;
+      vid.preload = 'auto';
+      vid.defaultPlaybackRate = 0.85;
+      vid.playbackRate = 0.85;
+      vid.play().catch(() => {});
+    }
 
-    if (reduce) return;                        // reduced motion: static first frame
+    function setStage(stage) {
+      if (current === stage) return;
+      current = stage;
+      section.dataset.fusionStage = stage;
+    }
 
-    let played = false;
-    const io = new IntersectionObserver((entries) => {
-      const e = entries[0];
-      // Fire once the section essentially fills the viewport (whole thing in frame)
-      if (!played && e.isIntersecting && e.intersectionRatio >= 0.9) {
-        played = true;
-        vid.play().catch(() => {});
-        io.disconnect();                       // exactly once — no auto-reset/replay
+    function update() {
+      scheduled = false;
+      if (reduce) {
+        setStage('result');
+        return;
       }
-    }, { threshold: [0, 0.9, 1] });
-    io.observe(stage);
+
+      const rect = section.getBoundingClientRect();
+      const total = Math.max(1, rect.height - window.innerHeight);
+      const progress = Math.min(0.999, Math.max(0, -rect.top / total));
+      setStage(stages[Math.floor(progress * stages.length)]);
+    }
+
+    function requestUpdate() {
+      if (scheduled) return;
+      scheduled = true;
+      requestAnimationFrame(update);
+    }
+
+    window.addEventListener('scroll', requestUpdate, { passive: true });
+    window.addEventListener('resize', requestUpdate, { passive: true });
+    update();
+
+    if (vid) {
+      const io = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) vid.play().catch(() => {});
+        else vid.pause();
+      }, { threshold: 0.05 });
+      io.observe(section);
+    }
+
+    section.querySelectorAll('video').forEach(video => {
+      if (video === vid) return;
+      video.muted = true;
+      video.loop = true;
+      video.playsInline = true;
+      video.playbackRate = 0.85;
+      video.play().catch(() => {});
+    });
   })();
 
   // ---- FAQ accordion (single-open) ----
