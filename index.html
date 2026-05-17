@@ -80,9 +80,94 @@
   .menu.show li:nth-child(4){ transition-delay:.28s }
   .menu.show li:nth-child(5){ transition-delay:.34s }
 
-  /* Hero video stage — inward radial mask so the motion dissolves into the
-     paper canvas at every edge and never collides with the rest of the site. */
+  /* Hero bowl stage: sticky reveal from "camera can't see depth" to the
+     annotated VoCal read. */
+  .hero-scroll{ min-height:160vh; }
+  .hero-question,
+  .hero-answer,
+  .hero-depth-copy,
+  .hero-bowl-wrap{
+    transition:opacity .8s cubic-bezier(.22,1,.36,1), transform .9s cubic-bezier(.22,1,.36,1), filter .9s cubic-bezier(.22,1,.36,1);
+  }
+  .hero-answer{
+    opacity:0;
+    transform:translateY(32px);
+    filter:blur(10px);
+  }
+  .hero-headline{
+    position:relative;
+    isolation:isolate;
+  }
+  .hero-question,
+  .hero-answer{
+    position:relative;
+    isolation:isolate;
+    color:#0B0B0C;
+    text-shadow:
+      0 1px 0 rgba(251,251,250,.98),
+      0 0 8px rgba(251,251,250,.86),
+      0 0 22px rgba(251,251,250,.7),
+      0 0 44px rgba(244,244,242,.58);
+  }
+  .hero-question::before,
+  .hero-answer::before{
+    content:"";
+    position:absolute;
+    inset:-.14em -.3em -.08em;
+    z-index:-1;
+    border-radius:999px;
+    background:radial-gradient(ellipse 70% 54% at 50% 48%, rgba(251,251,250,.78), rgba(251,251,250,.46) 42%, rgba(251,251,250,0) 70%);
+    filter:blur(14px);
+    opacity:.82;
+    transform:translateZ(0);
+  }
+  .hero-depth-copy{
+    opacity:.72;
+    transform:translateY(12px);
+  }
+  .hero-scroll[data-hero-depth="surface"] .hero-question{
+    transform:translateY(12px);
+  }
+  .hero-scroll[data-hero-depth="depth"] .hero-answer{
+    opacity:1;
+    transform:none;
+    filter:blur(0);
+  }
+  .hero-scroll[data-hero-depth="depth"] .hero-question{
+    opacity:0;
+    visibility:hidden;
+    transform:translateY(-34px) scale(.94);
+  }
+  .hero-scroll[data-hero-depth="depth"] .hero-depth-copy{
+    opacity:1;
+    transform:none;
+  }
+  .hero-actions{
+    transition:opacity .55s cubic-bezier(.22,1,.36,1), transform .55s cubic-bezier(.22,1,.36,1);
+  }
+  .hero-scroll[data-hero-depth="depth"] .hero-actions{
+    opacity:0;
+    pointer-events:none;
+    transform:translateY(14px);
+  }
+  .hero-bowl-wrap{
+    transform:translateY(50px) scale(.98);
+  }
+  .hero-scroll[data-hero-depth="depth"] .hero-bowl-wrap{
+    transform:translateY(34px);
+  }
+  .hero-bowl-img{
+    filter:saturate(1.14) contrast(1.09) brightness(1.01) drop-shadow(0 30px 48px rgba(11,11,12,.12));
+    -webkit-mask-image:radial-gradient(ellipse 78% 74% at 50% 49%, #000 62%, rgba(0,0,0,0.76) 80%, transparent 98%);
+            mask-image:radial-gradient(ellipse 78% 74% at 50% 49%, #000 62%, rgba(0,0,0,0.76) 80%, transparent 98%);
+  }
+  @media (max-width: 767px){
+    .hero-scroll{ min-height:150vh; }
+  }
+
+  /* Legacy hero media mask retained for lower sections that share the visual language. */
   .hero-stage{
+    transform:translateY(60px);
     -webkit-mask-image:radial-gradient(ellipse 76% 72% at 50% 44%, #000 34%, rgba(0,0,0,0.55) 62%, transparent 84%);
             mask-image:radial-gradient(ellipse 76% 72% at 50% 44%, #000 34%, rgba(0,0,0,0.55) 62%, transparent 84%);
   }
@@ -95,7 +180,7 @@
   }
   /* Soft paper halo behind hero copy: a light glow that lifts type off busy
      footage. Not a harsh dark drop-shadow — stays Soft-Structuralism clean. */
-  .hero-copy{ text-shadow:0 1px 2px rgba(244,244,242,0.96), 0 0 14px rgba(244,244,242,0.92), 0 2px 30px rgba(244,244,242,0.88); }
+  .hero-copy{ text-shadow:none; }
   .feature-title{ letter-spacing:0; word-spacing:.07em; }
 
   /* Interactive phone demo */
@@ -319,49 +404,48 @@
   <main id="top">
 
     <!-- ================== HERO ================== -->
-    <section class="relative flex min-h-[100dvh] items-center overflow-hidden px-5 pb-24 pt-40 sm:px-8">
+    <section id="depthHero" class="hero-scroll relative bg-paper px-5 sm:px-8" data-hero-depth="surface">
+      <div class="sticky top-0 flex min-h-[100dvh] items-center overflow-hidden pb-16 pt-36">
 
-      <!-- Full-bleed motion stage: video sits behind everything and is masked
-           inward so it melts into the paper canvas instead of fighting it. -->
-      <div class="hero-stage pointer-events-none absolute inset-0 -z-10 flex items-center justify-center">
-        <video id="heroScrubVid" class="h-auto w-[95vw] min-w-[600px] max-w-[1220px] object-contain" muted playsinline preload="auto" aria-hidden="true">
-          <source src="mp_.mp4" type="video/mp4" />
-        </video>
-        <!-- Light paper scrim — the plate is small now, so this only needs to
-             calm it slightly; the headline keeps its own paper halo for legibility. -->
-        <div class="absolute inset-0 bg-[radial-gradient(ellipse_70%_64%_at_50%_46%,rgba(244,244,242,0.5),rgba(244,244,242,0.2)_54%,rgba(244,244,242,0)_82%)]"></div>
+      <!-- Full-bleed bowl stage: the image sits behind the claim, then reveals
+           the ingredient read when the user nudges the page down. -->
+      <div class="hero-stage pointer-events-none absolute inset-0 -z-10 flex items-end justify-center pb-8 sm:pb-12">
+        <div class="hero-bowl-wrap relative w-[118vw] max-w-[1120px]">
+          <img src="assets/hero-bowl.png" alt="A colorful grain bowl with tofu, avocado, vegetables, quinoa, and sauce" class="hero-bowl-img mx-auto w-full object-contain" />
+          <div class="absolute inset-0 bg-[radial-gradient(ellipse_66%_54%_at_50%_54%,rgba(244,244,242,0),rgba(244,244,242,0.08)_74%,rgba(244,244,242,0.34)_100%)]"></div>
+        </div>
       </div>
 
-      <div class="relative z-10 mx-auto grid w-full max-w-[1180px] items-center gap-9 text-center lg:grid-cols-[minmax(0,1.05fr)_minmax(330px,0.75fr)] lg:gap-12 lg:text-left">
-        <div class="flex flex-col items-center lg:items-start">
+      <div class="relative z-10 mx-auto flex w-full max-w-[1180px] flex-col items-center text-center">
+        <div class="flex flex-col items-center">
           <div class="reveal inline-flex w-max items-center gap-2 rounded-full border border-ink/[0.07] bg-mist/70 px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-slate shadow-float">
             <span class="h-1.5 w-1.5 rounded-full bg-sage"></span> Now in beta
           </div>
 
-          <h1 class="reveal hero-copy mt-7 max-w-[14ch] font-display text-[clamp(2.85rem,6.6vw,6.8rem)] font-semibold leading-[0.95] tracking-[-0.03em] text-ink">
-            Your camera can't see depth.
-            <span class="text-slate">VoCal can.</span>
+          <h1 class="reveal hero-copy hero-headline mt-7 max-w-[13ch] font-display text-[clamp(3rem,7.6vw,7.6rem)] font-semibold leading-[0.92] tracking-[-0.03em] text-ink">
+            <span class="hero-question block">Your camera can't see depth.</span>
+            <span class="hero-answer block">VoCal can.</span>
           </h1>
 
-          <p class="reveal hero-copy mt-8 max-w-[36ch] text-[clamp(1.12rem,1.55vw,1.35rem)] font-medium leading-relaxed text-ink/75">
-            Snap the plate. Say what's underneath. VoCal layers both into one complete nutrition read.
+          <p class="reveal hero-depth-copy hero-copy mt-7 max-w-[44ch] text-[clamp(1.08rem,1.55vw,1.35rem)] font-medium leading-relaxed text-ink/75">
+            A photo catches the surface. Voice adds the hidden layers, prep details, and portions that make the nutrition read real.
           </p>
 
-          <div class="reveal mt-10 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
+          <div class="reveal hero-actions mt-10 flex flex-wrap items-center justify-center gap-3">
             <a href="#cta" class="group flex items-center gap-3 rounded-full bg-ink py-3 pl-7 pr-2.5 text-[15px] font-medium text-mist shadow-floatl transition-transform duration-500 ease-spring active:scale-[0.98]">
               Get started free
               <span class="grid h-9 w-9 place-items-center rounded-full bg-mist/15 transition-transform duration-500 ease-spring group-hover:translate-x-0.5 group-hover:-translate-y-px group-hover:scale-105">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
               </span>
             </a>
-            <a href="#how" class="flex items-center gap-2.5 rounded-full border border-ink/[0.08] bg-mist/60 px-6 py-3 text-[15px] font-medium text-ink shadow-float transition-colors duration-500 ease-fluid hover:bg-mist">
-              See how it works
+            <a href="#explode" class="flex items-center gap-2.5 rounded-full border border-ink/[0.08] bg-mist/70 px-6 py-3 text-[15px] font-medium text-ink shadow-float transition-colors duration-500 ease-fluid hover:bg-mist">
+              See the depth read
             </a>
           </div>
         </div>
 
         <!-- Interactive VoCal phone demo -->
-        <div class="phone-demo mx-auto w-full max-w-[390px] lg:justify-self-end" data-stage="photo">
+        <div class="phone-demo hidden" data-stage="photo">
           <div class="phone-shell rounded-[3.2rem] border border-ink/10 bg-ink p-2">
             <div class="phone-screen relative overflow-hidden rounded-[2.65rem] bg-[#F7F6F1] p-4 text-left shadow-inset">
               <div class="mb-4 flex items-center justify-between px-2 text-[11px] font-semibold text-ink/70">
@@ -457,24 +541,22 @@
           </div>
         </div>
       </div>
+      </div>
     </section>
 
     <!-- ================== PHOTO + VOICE RECONCILIATION ================== -->
-    <section id="explode" class="scrub fusion relative h-[320vh] bg-paper" data-fusion-stage="photo">
-      <div class="scrub-stage fusion-stage sticky top-0 flex min-h-[100dvh] items-center overflow-hidden pb-20 pt-32 lg:py-24">
-
-        <div class="scrub-video-wrap scrub-mask pointer-events-none absolute inset-0">
-          <video id="scrubVid" class="h-full w-full object-cover" muted playsinline preload="auto" aria-hidden="true">
-            <source src="explode.mp4" type="video/mp4" />
-          </video>
-          <div class="absolute inset-0 bg-[radial-gradient(ellipse_66%_58%_at_62%_52%,rgba(244,244,242,0.28),rgba(244,244,242,0.08)_46%,rgba(244,244,242,0)_78%)]"></div>
-        </div>
-
-        <div aria-hidden="true" class="scrub-plate pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_56%_at_47%_50%,rgba(244,244,242,0.96),rgba(244,244,242,0.78)_38%,rgba(244,244,242,0.34)_64%,rgba(244,244,242,0)_88%)]"></div>
+    <section id="explode" class="fusion relative bg-paper py-16 sm:py-20" data-fusion-stage="result">
+      <div class="flex min-h-[82vh] items-center overflow-hidden">
 
         <div class="relative z-10 mx-auto grid w-full max-w-[1180px] items-center gap-10 px-5 sm:px-8 lg:grid-cols-[minmax(0,0.92fr)_minmax(360px,1fr)]">
           <div>
-            <div class="fusion-copy relative">
+            <div class="relative">
+              <p class="inline-flex w-max items-center gap-2 rounded-full border border-ink/[0.07] bg-mist/75 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-slate shadow-float">VoCal can</p>
+              <h2 class="mt-7 max-w-[12ch] font-display text-[clamp(2.45rem,5.6vw,5.2rem)] font-semibold leading-[0.98] tracking-[-0.03em] text-ink">Photo and voice become one meal.</h2>
+              <p class="mt-6 max-w-[40ch] text-[clamp(1.08rem,1.55vw,1.32rem)] font-medium leading-relaxed text-ink/80">The video shows the spread of ingredients. VoCal combines what the camera sees with what you say is hidden, mixed in, or customized.</p>
+            </div>
+
+            <div class="fusion-copy relative hidden">
               <article class="fusion-panel fusion-photo absolute inset-0">
                 <p class="hero-copy inline-flex w-max items-center gap-2 rounded-full border border-ink/[0.07] bg-mist/75 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-slate shadow-float">Step 01 · photo scan</p>
                 <h2 class="hero-copy mt-7 max-w-[11ch] font-display text-[clamp(2.45rem,5.6vw,5.2rem)] font-semibold leading-[0.98] tracking-[-0.03em] text-ink">A photo only sees the surface.</h2>
@@ -494,7 +576,7 @@
               </article>
             </div>
 
-            <div class="mt-8 grid max-w-[520px] grid-cols-3 gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate">
+            <div class="mt-8 hidden max-w-[520px] grid-cols-3 gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate">
               <div class="fusion-step fusion-step-photo rounded-full border border-ink/[0.07] bg-mist/70 px-3 py-2 text-center shadow-float">Photo</div>
               <div class="fusion-step fusion-step-voice rounded-full border border-ink/[0.07] bg-mist/70 px-3 py-2 text-center shadow-float">Voice</div>
               <div class="fusion-step fusion-step-result rounded-full border border-ink/[0.07] bg-mist/70 px-3 py-2 text-center shadow-float">Result</div>
@@ -504,7 +586,7 @@
           <div class="relative">
             <div class="rounded-[2.6rem] border border-ink/[0.06] bg-white/45 p-2 shadow-floatl backdrop-blur-sm">
               <div class="relative min-h-[430px] overflow-hidden rounded-[calc(2.6rem-0.5rem)] bg-mist shadow-inset sm:min-h-[520px]">
-                <video class="absolute inset-0 h-full w-full object-cover opacity-80" muted playsinline preload="auto" aria-hidden="true">
+                <video id="scrubVid" class="absolute inset-0 h-full w-full object-cover opacity-80" muted playsinline preload="auto" aria-hidden="true">
                   <source src="explode.mp4" type="video/mp4" />
                 </video>
                 <div class="absolute inset-0 bg-[radial-gradient(ellipse_76%_66%_at_52%_46%,rgba(251,251,250,0.16),rgba(251,251,250,0.5)_62%,rgba(251,251,250,0.88)_100%)]"></div>
@@ -540,7 +622,7 @@
           </div>
         </div>
 
-        <div class="pointer-events-none absolute inset-x-0 bottom-7 z-10 hidden justify-center sm:flex">
+        <div class="pointer-events-none absolute inset-x-0 bottom-7 z-10 hidden justify-center">
           <span class="flex items-center gap-2 rounded-full border border-ink/[0.07] bg-mist/70 px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-slate shadow-float">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M7 14l5 5 5-5"/></svg>
             Scroll to combine
@@ -550,10 +632,10 @@
     </section>
 
     <!-- ================== TRUST MARQUEE ================== -->
-    <section class="reveal overflow-hidden py-10">
-      <div class="mx-auto mb-8 max-w-[1180px] px-5 text-center text-[11px] font-semibold uppercase tracking-[0.24em] text-slate/70 sm:px-8">Trusted by people who hate logging food</div>
-      <div class="relative flex w-full overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_12%,#000_88%,transparent)]">
-        <div class="drift flex shrink-0 items-center gap-14 pr-14 font-display text-2xl font-medium text-slate/55">
+    <section class="reveal overflow-hidden py-8">
+      <div class="mx-auto mb-4 max-w-[1180px] px-5 text-center text-[12px] font-bold uppercase tracking-[0.24em] text-ink sm:px-8">Trusted by people who hate logging food</div>
+      <div class="relative mx-auto flex max-w-[1180px] overflow-hidden rounded-[1.5rem] border border-ink/[0.06] bg-ink py-4 shadow-float [mask-image:linear-gradient(90deg,transparent,#000_8%,#000_92%,transparent)]">
+        <div class="drift flex shrink-0 items-center gap-10 pr-10 font-display text-xl font-medium text-mist/85 sm:text-2xl">
           <span>Dietitians</span><span class="text-sage">·</span><span>Strength athletes</span><span class="text-sage">·</span><span>Busy parents</span><span class="text-sage">·</span><span>Marathoners</span><span class="text-sage">·</span><span>Clinics</span><span class="text-sage">·</span><span>Home cooks</span><span class="text-sage">·</span>
           <span>Dietitians</span><span class="text-sage">·</span><span>Strength athletes</span><span class="text-sage">·</span><span>Busy parents</span><span class="text-sage">·</span><span>Marathoners</span><span class="text-sage">·</span><span>Clinics</span><span class="text-sage">·</span><span>Home cooks</span><span class="text-sage">·</span>
         </div>
@@ -561,13 +643,13 @@
     </section>
 
     <!-- ================== FEATURES — ASYMMETRICAL BENTO ================== -->
-    <section id="features" class="mx-auto max-w-[1180px] px-5 py-24 sm:px-8 sm:py-36">
+    <section id="features" class="mx-auto max-w-[1180px] px-5 py-16 sm:px-8 sm:py-24">
       <div class="reveal max-w-[42ch]">
         <p class="inline-flex w-max items-center gap-2 rounded-full border border-ink/[0.07] bg-mist/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-slate">Why VoCal</p>
         <h2 class="feature-title mt-6 font-display text-[clamp(2.2rem,5vw,3.8rem)] font-semibold leading-[1.02] tracking-normal">Every feature earns its place in the log.</h2>
       </div>
 
-      <div class="mt-14 grid grid-cols-1 gap-5 md:grid-cols-12">
+      <div class="mt-10 grid grid-cols-1 gap-5 md:grid-cols-12">
 
         <!-- A — tall hero feature -->
         <article class="reveal group md:col-span-7 md:row-span-2">
@@ -592,14 +674,14 @@
                     <span class="h-4 w-1 rounded-full bg-sage/35"></span>
                     <span class="ml-3 text-[12px] font-semibold uppercase tracking-[0.18em] text-slate/65">voice context parsed</span>
                   </div>
-                  <div class="mt-4 flex flex-wrap gap-2 text-[12px] font-semibold text-slate">
+                  <div class="mt-3 flex flex-wrap gap-2 text-[12px] font-semibold text-slate">
                     <span class="rounded-full bg-paper px-3 py-1.5">hidden protein</span>
                     <span class="rounded-full bg-paper px-3 py-1.5">portion clue</span>
                     <span class="rounded-full bg-sagelt px-3 py-1.5 text-sage">higher confidence</span>
                   </div>
                 </div>
               </div>
-              <div class="mt-10 overflow-hidden rounded-2xl bg-paper">
+              <div class="mt-7 overflow-hidden rounded-2xl bg-paper">
                 <div class="border-b border-ink/[0.06] p-5">
                   <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate/70">Voice note</p>
                   <p class="mt-2 font-display text-lg font-medium leading-snug">"Half a Cava bowl, extra chicken, dressing on the side."</p>
@@ -617,21 +699,21 @@
         <!-- B -->
         <article class="reveal md:col-span-5">
           <div class="h-full rounded-[2rem] border border-ink/[0.05] bg-white/55 p-2 shadow-float">
-            <div class="h-full rounded-[calc(2rem-0.5rem)] bg-mist p-8 shadow-inset">
-              <span class="grid h-12 w-12 place-items-center rounded-2xl bg-paper text-ink">
+            <div class="h-full rounded-[calc(2rem-0.5rem)] bg-ink p-8 text-mist shadow-inset">
+              <span class="grid h-12 w-12 place-items-center rounded-2xl bg-mist/10 text-mist">
                 <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
               </span>
               <h3 class="feature-title mt-7 font-display text-2xl font-semibold tracking-normal">Restaurant lookup, matched automatically.</h3>
-              <p class="mt-3 leading-relaxed text-slate">Name the place or dish and VoCal can search restaurant foods, compare likely menu items, and anchor the estimate to a real meal.</p>
-              <div class="mt-6 overflow-hidden rounded-2xl bg-paper text-[13px] font-medium text-slate">
-                <div class="flex items-center gap-2 border-b border-ink/[0.06] px-4 py-3">
+              <p class="mt-3 leading-relaxed text-mist/60">Name the place or dish and VoCal can search restaurant foods, compare likely menu items, and anchor the estimate to a real meal.</p>
+              <div class="mt-6 overflow-hidden rounded-2xl bg-mist/10 text-[13px] font-medium text-mist/65">
+                <div class="flex items-center gap-2 border-b border-mist/10 px-4 py-3">
                   <svg class="shrink-0 text-sage" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4"/></svg>
                   <span class="truncate">chipotle chicken bowl, no cheese</span>
                 </div>
                 <div class="p-4">
-                  <div class="rounded-xl bg-mist p-4">
+                  <div class="rounded-xl bg-mist p-4 text-ink">
                     <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate/65">Best match</p>
-                    <p class="mt-1 font-display text-lg font-semibold text-ink">Chicken burrito bowl</p>
+                    <p class="mt-1 font-display text-lg font-semibold">Chicken burrito bowl</p>
                     <div class="mt-3 grid grid-cols-3 gap-2 text-center text-[11px]">
                       <span class="whitespace-nowrap rounded-full bg-paper px-2 py-1">640 kcal</span>
                       <span class="whitespace-nowrap rounded-full bg-paper px-2 py-1">44g pro</span>
@@ -668,8 +750,8 @@
         <!-- D -->
         <article class="reveal md:col-span-4">
           <div class="h-full rounded-[2rem] border border-ink/[0.05] bg-white/55 p-2 shadow-float">
-            <div class="h-full rounded-[calc(2rem-0.5rem)] bg-mist p-8 shadow-inset">
-              <span class="grid h-12 w-12 place-items-center rounded-2xl bg-sagelt text-sage">
+            <div class="h-full rounded-[calc(2rem-0.5rem)] bg-ink p-8 text-mist shadow-inset">
+              <span class="grid h-12 w-12 place-items-center rounded-2xl bg-mist/10 text-mist">
                 <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5"/><path d="M4 19h16"/><path d="m7 14 3-4 3 3 5-7"/></svg>
               </span>
               <h3 class="feature-title mt-7 font-display text-xl font-semibold tracking-normal">A progress tab that shows movement.</h3>
@@ -725,11 +807,11 @@
                 <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="3" width="8" height="18" rx="2.5"/><path d="M11 6h2"/></svg>
               </span>
               <h3 class="feature-title mt-7 font-display text-xl font-semibold tracking-normal">Wearables feed the next step.</h3>
-              <p class="mt-3 text-[15px] leading-relaxed text-slate">Apple Watch, Whoop, Apple Health, and other fitness trackers help VoCal adjust coaching to recovery and output.</p>
-              <div class="mt-6 space-y-2 rounded-2xl bg-paper p-4 text-[13px] font-medium">
-                <div class="flex items-center justify-between rounded-xl bg-mist px-4 py-3"><span>Apple Watch</span><span class="text-sage">Log by voice</span></div>
-                <div class="flex items-center justify-between rounded-xl bg-mist px-4 py-3"><span>Whoop</span><span class="text-sage">Recovery synced</span></div>
-                <div class="flex items-center justify-between rounded-xl bg-mist px-4 py-3"><span>Health data</span><span class="text-sage">Steps + sleep</span></div>
+              <p class="mt-3 text-[15px] leading-relaxed text-mist/60">Apple Watch, Whoop, Apple Health, and other fitness trackers help VoCal adjust coaching to recovery and output.</p>
+              <div class="mt-6 space-y-2 rounded-2xl bg-mist/10 p-4 text-[13px] font-medium">
+                <div class="flex items-center justify-between rounded-xl bg-mist px-4 py-3 text-ink"><span>Apple Watch</span><span class="text-sage">Log by voice</span></div>
+                <div class="flex items-center justify-between rounded-xl bg-mist px-4 py-3 text-ink"><span>Whoop</span><span class="text-sage">Recovery synced</span></div>
+                <div class="flex items-center justify-between rounded-xl bg-mist px-4 py-3 text-ink"><span>Health data</span><span class="text-sage">Steps + sleep</span></div>
               </div>
             </div>
           </div>
@@ -739,8 +821,8 @@
     </section>
 
     <!-- ================== HOW IT WORKS — EDITORIAL ================== -->
-    <section id="how" class="mx-auto max-w-[1180px] px-5 py-24 sm:px-8 sm:py-36">
-      <div class="grid gap-14 md:grid-cols-12">
+    <section id="how" class="mx-auto max-w-[1180px] px-5 py-16 sm:px-8 sm:py-24">
+      <div class="grid gap-10 md:grid-cols-12">
         <div class="reveal md:col-span-5">
           <p class="inline-flex w-max items-center gap-2 rounded-full border border-ink/[0.07] bg-mist/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-slate">Three seconds</p>
           <h2 class="mt-6 font-display text-[clamp(2.2rem,5vw,3.8rem)] font-semibold leading-[1.02] tracking-[-0.03em]">From plate to proof.</h2>
@@ -773,12 +855,12 @@
     </section>
 
     <!-- ================== TESTIMONIAL — EDITORIAL QUOTE ================== -->
-    <section class="mx-auto max-w-[1180px] px-5 py-24 sm:px-8 sm:py-32">
+    <section class="mx-auto max-w-[1180px] px-5 py-16 sm:px-8 sm:py-24">
       <div class="reveal rounded-[2.5rem] border border-ink/[0.05] bg-white/55 p-2 shadow-floatl">
-        <div class="rounded-[calc(2.5rem-0.5rem)] bg-mist px-8 py-16 text-center shadow-inset sm:px-16 sm:py-24">
-          <svg class="mx-auto mb-8 text-sage" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"><path d="M7 7h4v6c0 2-1.5 4-4 4M14 7h4v6c0 2-1.5 4-4 4"/></svg>
+        <div class="rounded-[calc(2.5rem-0.5rem)] bg-mist px-8 py-12 text-center shadow-inset sm:px-16 sm:py-16">
+          <svg class="mx-auto mb-5 text-sage" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"><path d="M7 7h4v6c0 2-1.5 4-4 4M14 7h4v6c0 2-1.5 4-4 4"/></svg>
           <p class="mx-auto max-w-[24ch] font-display text-[clamp(1.7rem,4vw,3rem)] font-medium leading-[1.12] tracking-[-0.02em]">I've abandoned every food tracker in a week. VoCal is the first one that lets me log real meals without babysitting the app.</p>
-          <div class="mt-10 flex items-center justify-center gap-4">
+          <div class="mt-7 flex items-center justify-center gap-4">
             <span class="grid h-11 w-11 place-items-center rounded-full bg-sagelt font-display font-semibold text-sage">RA</span>
             <div class="text-left"><p class="font-medium">Dr. Renée Aoki</p><p class="text-[14px] text-slate">Sports dietitian · Lisbon</p></div>
           </div>
@@ -787,13 +869,13 @@
     </section>
 
     <!-- ================== PRICING ================== -->
-    <section id="pricing" class="mx-auto max-w-[1180px] px-5 py-24 sm:px-8 sm:py-36">
+    <section id="pricing" class="mx-auto max-w-[1180px] px-5 py-16 sm:px-8 sm:py-24">
       <div class="reveal mx-auto max-w-[40ch] text-center">
         <p class="inline-flex w-max items-center gap-2 rounded-full border border-ink/[0.07] bg-mist/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-slate">Pricing</p>
         <h2 class="mt-6 font-display text-[clamp(2.2rem,5vw,3.8rem)] font-semibold leading-[1.02] tracking-[-0.03em]">Honest, and quietly priced.</h2>
       </div>
 
-      <div class="mt-14 grid gap-5 md:grid-cols-3">
+      <div class="mt-10 grid gap-5 md:grid-cols-3">
         <div class="reveal rounded-[2rem] border border-ink/[0.05] bg-white/55 p-2 shadow-float">
           <div class="flex h-full flex-col rounded-[calc(2rem-0.5rem)] bg-mist p-8 shadow-inset">
             <p class="font-display text-lg font-semibold">Taste</p>
@@ -832,13 +914,13 @@
     </section>
 
     <!-- ================== FAQ ================== -->
-    <section id="faq" class="mx-auto max-w-[860px] px-5 py-24 sm:px-8 sm:py-36">
+    <section id="faq" class="mx-auto max-w-[860px] px-5 py-16 sm:px-8 sm:py-24">
       <div class="reveal text-center">
         <p class="inline-flex w-max items-center gap-2 rounded-full border border-ink/[0.07] bg-mist/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-slate">Questions</p>
         <h2 class="mt-6 font-display text-[clamp(2rem,5vw,3.4rem)] font-semibold leading-[1.05] tracking-[-0.03em]">The things people ask.</h2>
       </div>
 
-      <div class="reveal mt-12 flex flex-col gap-3">
+      <div class="reveal mt-8 flex flex-col gap-3">
         <div class="faq rounded-[1.5rem] border border-ink/[0.05] bg-white/55 p-1.5 shadow-float">
           <div class="rounded-[calc(1.5rem-0.375rem)] bg-mist shadow-inset">
             <button class="faq-trigger flex w-full items-center justify-between gap-6 px-7 py-6 text-left">
@@ -882,14 +964,14 @@
     </section>
 
     <!-- ================== FINAL CTA ================== -->
-    <section id="cta" class="mx-auto max-w-[1180px] px-5 pb-28 sm:px-8">
+    <section id="cta" class="mx-auto max-w-[1180px] px-5 pb-20 sm:px-8">
       <div class="reveal rounded-[2.75rem] border border-ink/[0.06] bg-white/55 p-2 shadow-floatl">
-        <div class="relative overflow-hidden rounded-[calc(2.75rem-0.5rem)] bg-ink px-8 py-20 text-center text-mist shadow-inset sm:px-16 sm:py-28">
+        <div class="relative overflow-hidden rounded-[calc(2.75rem-0.5rem)] bg-ink px-8 py-16 text-center text-mist shadow-inset sm:px-16 sm:py-20">
           <div aria-hidden="true" class="pointer-events-none absolute -top-32 left-1/2 h-[420px] w-[720px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(22,97,63,0.4),transparent)]"></div>
           <div class="relative">
             <h2 class="mx-auto max-w-[16ch] font-display text-[clamp(2.2rem,6vw,4.6rem)] font-semibold leading-[1.0] tracking-[-0.03em]">Stop guessing from a flat photo. Start adding context.</h2>
             <p class="mx-auto mt-6 max-w-[42ch] leading-relaxed text-mist/60">Free on iOS and Android. Snap the meal, say what the camera missed, and keep your progress moving.</p>
-            <div class="mt-11 flex flex-wrap justify-center gap-3">
+            <div class="mt-8 flex flex-wrap justify-center gap-3">
               <a href="#" class="group flex items-center gap-3 rounded-full bg-mist py-3.5 pl-7 pr-2.5 text-[15px] font-medium text-ink transition-transform duration-500 ease-spring active:scale-[0.98]">
                 Download VoCal
                 <span class="grid h-9 w-9 place-items-center rounded-full bg-ink/[0.08] transition-transform duration-500 ease-spring group-hover:translate-x-0.5 group-hover:-translate-y-px group-hover:scale-105">
@@ -971,10 +1053,9 @@
   // ---- Interactive phone demo: photo -> voice -> combined result ----
   (function () {
     const demo = document.querySelector('.phone-demo');
-    if (!demo) return;
+    if (!demo || demo.classList.contains('hidden')) return;
 
     const controls = [...demo.querySelectorAll('[data-demo-stage]')];
-    const stages = ['photo', 'voice', 'result'];
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let active = stages.indexOf(demo.dataset.stage || 'photo');
     let timer = null;
@@ -1007,7 +1088,31 @@
     start();
   })();
 
-  // ---- Hero video: scroll-scrubbed fast spin (page still scrolls normally) ----
+  // ---- Hero depth reveal: a small scroll turns the camera claim into labels ----
+  (function () {
+    const hero = document.getElementById('depthHero');
+    if (!hero) return;
+    let scheduled = false;
+
+    function update() {
+      scheduled = false;
+      const rect = hero.getBoundingClientRect();
+      const progress = Math.min(1, Math.max(0, -rect.top / Math.max(1, window.innerHeight * 0.55)));
+      hero.dataset.heroDepth = progress > 0.16 ? 'depth' : 'surface';
+    }
+
+    function requestUpdate() {
+      if (scheduled) return;
+      scheduled = true;
+      requestAnimationFrame(update);
+    }
+
+    window.addEventListener('scroll', requestUpdate, { passive: true });
+    window.addEventListener('resize', requestUpdate, { passive: true });
+    update();
+  })();
+
+  // ---- Legacy hero video scrub, skipped when no hero video is present ----
   (function () {
     const vid = document.getElementById('heroScrubVid');
     if (!vid) return;
@@ -1062,25 +1167,22 @@
     compute();
   })();
 
-  // ---- Photo + voice fusion story: scroll through three evidence states ----
+  // ---- Photo + voice fusion story: one result state, video plays once ----
   (function () {
     const section = document.getElementById('explode');
     const vid = document.getElementById('scrubVid');
     if (!section) return;
 
-    const stages = ['photo', 'voice', 'result'];
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let scheduled = false;
     let current = '';
 
     if (vid) {
-      vid.loop = true;
+      vid.loop = false;
       vid.muted = true;
       vid.playsInline = true;
       vid.preload = 'auto';
       vid.defaultPlaybackRate = 0.85;
       vid.playbackRate = 0.85;
-      vid.play().catch(() => {});
+      try { vid.currentTime = 0; } catch (e) {}
     }
 
     function setStage(stage) {
@@ -1089,32 +1191,11 @@
       section.dataset.fusionStage = stage;
     }
 
-    function update() {
-      scheduled = false;
-      if (reduce) {
-        setStage('result');
-        return;
-      }
-
-      const rect = section.getBoundingClientRect();
-      const total = Math.max(1, rect.height - window.innerHeight);
-      const progress = Math.min(0.999, Math.max(0, -rect.top / total));
-      setStage(stages[Math.floor(progress * stages.length)]);
-    }
-
-    function requestUpdate() {
-      if (scheduled) return;
-      scheduled = true;
-      requestAnimationFrame(update);
-    }
-
-    window.addEventListener('scroll', requestUpdate, { passive: true });
-    window.addEventListener('resize', requestUpdate, { passive: true });
-    update();
+    setStage('result');
 
     if (vid) {
       const io = new IntersectionObserver(([entry]) => {
-        if (entry.isIntersecting) vid.play().catch(() => {});
+        if (entry.isIntersecting && !vid.ended) vid.play().catch(() => {});
         else vid.pause();
       }, { threshold: 0.05 });
       io.observe(section);
@@ -1123,10 +1204,15 @@
     section.querySelectorAll('video').forEach(video => {
       if (video === vid) return;
       video.muted = true;
-      video.loop = true;
+      video.loop = false;
       video.playsInline = true;
       video.playbackRate = 0.85;
-      video.play().catch(() => {});
+      try { video.currentTime = 0; } catch (e) {}
+      const io = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting && !video.ended) video.play().catch(() => {});
+        else video.pause();
+      }, { threshold: 0.05 });
+      io.observe(section);
     });
   })();
 
